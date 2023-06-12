@@ -415,6 +415,24 @@ RE.getRelativeCaretYPosition = function() {
     return y;
 };
 
+RE.editor.addEventListener("click", function() {
+    var items = [];
+    if (document.queryCommandState('bold')) {
+        items.push('bold');
+    }
+    if (document.queryCommandState('italic')) {
+        items.push('italic');
+    }
+    if (document.queryCommandState('insertOrderedList')) {
+        items.push('number_list');
+    }
+    if (document.queryCommandState('insertUnorderedList')) {
+        items.push('bullet_list');
+    }
+    var clickUrl = "click:" + encodeURI(items.join(','));
+    RE.callback(clickUrl);
+});
+
 window.onload = function() {
     RE.callback("ready");
 };

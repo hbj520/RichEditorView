@@ -144,6 +144,7 @@ public enum RichEditorDefaultOption: RichEditorOption {
     }
     
     public func action(_ toolbar: RichEditorToolbar) {
+        toolbar.updateToolbarSelectItem(option: self)
         switch self {
         case .clear: toolbar.editor?.removeFormat()
         case .undo: toolbar.editor?.undo()

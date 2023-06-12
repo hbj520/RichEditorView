@@ -122,6 +122,9 @@ import UIKit
                     option.action(strongSelf)
                 }
             }
+            // 创建一个固定的空间，用来调整两个 UIBarButtonItem 之间的间距
+            let fixedSpace = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+            fixedSpace.width = 8 // 设置固定空间的宽度
 
             if let image = option.image {
                 let button = RichBarButtonItem(image: image, handler: handler)
@@ -131,6 +134,7 @@ import UIKit
                 let button = RichBarButtonItem(title: title, handler: handler)
                 buttons.append(button)
             }
+            buttons.append(fixedSpace)
         }
         toolbar.items = buttons
 
@@ -153,4 +157,49 @@ import UIKit
         toolbarScroll.contentSize.width = width
     }
     
+    
+    /// 更新选中的item样式
+    func updateToolbarSelectItem(option: RichEditorDefaultOption) {
+        
+        switch option {
+        case .orderedList:
+            toolbar.items?.forEach { item in
+                if let button = item as? RichBarButtonItem {
+                    if button.image == RichEditorDefaultOption.orderedList.image {
+                        button.isSelected = !button.isSelected
+                    }
+                    
+                    if button.image == RichEditorDefaultOption.unorderedList.image {
+                        button.isSelected = false
+                    }
+                }
+            }
+
+            break
+        case .unorderedList:
+            toolbar.items?.forEach { item in
+                if let button = item as? RichBarButtonItem {
+                    if button.image == RichEditorDefaultOption.unorderedList.image {
+                        button.isSelected = !button.isSelected
+                    }
+                    
+                    if button.image == RichEditorDefaultOption.orderedList.image {
+                        button.isSelected = false
+                    }
+                }
+            }
+
+            break
+        default:
+            toolbar.items?.forEach { item in
+                if let button = item as? RichBarButtonItem, button.image == option.image {
+                        button.isSelected = !button.isSelected
+                }
+            }
+
+            break
+        }
+
+    }
+
 }
