@@ -46,7 +46,22 @@ RE.rangeOrCaretSelectionExists = function() {
 RE.editor.addEventListener("input", function() {
     RE.updatePlaceholder();
     RE.backuprange();
-    RE.callback("input");
+    var items = [];
+    if (document.queryCommandState('bold')) {
+        items.push('bold');
+    }
+    if (document.queryCommandState('italic')) {
+        items.push('italic');
+    }
+    if (document.queryCommandState('insertOrderedList')) {
+        items.push('ordered_list');
+    }
+    if (document.queryCommandState('insertUnorderedList')) {
+        items.push('unordered_list');
+    }
+    var inputUrl = "input:" + encodeURI(items.join(','));
+
+    RE.callback(inputUrl);
 });
 
 RE.editor.addEventListener("focus", function() {
@@ -119,6 +134,11 @@ RE.setPlaceholderText = function(text) {
 };
 
 RE.updatePlaceholder = function() {
+   // 正则表达式，判断当前标签是否仅剩 <br> 标签
+   if (RE.editor.innerHTML.replace(/<br\s*\/?>/gi, "").trim() === "") {
+    RE.editor.classList.add("placeholder");
+    return
+    }
     if (RE.editor.innerHTML.indexOf('img') !== -1 || RE.editor.innerHTML.length > 0) {
         RE.editor.classList.remove("placeholder");
     } else {
@@ -424,10 +444,10 @@ RE.editor.addEventListener("click", function() {
         items.push('italic');
     }
     if (document.queryCommandState('insertOrderedList')) {
-        items.push('number_list');
+        items.push('ordered_list');
     }
     if (document.queryCommandState('insertUnorderedList')) {
-        items.push('bullet_list');
+        items.push('unordered_list');
     }
     var clickUrl = "click:" + encodeURI(items.join(','));
     RE.callback(clickUrl);
@@ -435,4 +455,5 @@ RE.editor.addEventListener("click", function() {
 
 window.onload = function() {
     RE.callback("ready");
+//    RE.editor.focus();
 };

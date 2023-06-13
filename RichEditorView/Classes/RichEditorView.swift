@@ -10,7 +10,6 @@ import WebKit
     
 /// The value we hold in order to be able to set the line height before the JS completely loads.
 private let DefaultInnerLineHeight: Int = 21
-    
 /// RichEditorDelegate defines callbacks for the delegate of the RichEditorView
 @objc public protocol RichEditorDelegate: class {
     /// Called when the inner height of the text being displayed changes
@@ -40,6 +39,10 @@ private let DefaultInnerLineHeight: Int = 21
     /// Called when custom actions are called by callbacks in the JS
     /// By default, this method is not used unless called by some custom JS that you add
     @objc optional func richEditor(_ editor: RichEditorView, handle action: String)
+    
+    ///  富文本编辑框内，样式有变化（焦点切换&&toolbar样式改变&&换行）
+    @objc optional func richEditor(_ editor: RichEditorView, stylesChange styles: [String])
+
 }
 
 /// RichEditorView is a UIView that displays richly styled text, and allows it to be edited in a WYSIWYG fashion.
@@ -554,6 +557,10 @@ private let DefaultInnerLineHeight: Int = 21
                 self.contentHTML = content
                 self.updateHeight()
             }
+            let stylesString = method.components(separatedBy: "input:").filter{!$0.isEmpty}.first ?? ""
+            let styles = stylesString.components(separatedBy: ",")
+            self.delegate?.richEditor?(self, stylesChange: styles)
+
         }
         else if method.hasPrefix("updateHeight") {
             updateHeight()
@@ -577,6 +584,13 @@ private let DefaultInnerLineHeight: Int = 21
                 self.delegate?.richEditor?(self, handle: action)
             }
         }
+        // 点击换行输入框
+        else if method.hasPrefix("click:") {
+            let stylesString = method.components(separatedBy: "click:").filter{!$0.isEmpty}.first ?? ""
+            let styles = stylesString.components(separatedBy: ",")
+            self.delegate?.richEditor?(self, stylesChange: styles)
+            print("styles --> \(styles)")
+        }
     }
     
     // MARK: - Responder Handling
@@ -596,3 +610,4 @@ private let DefaultInnerLineHeight: Int = 21
     }
     
 }
+

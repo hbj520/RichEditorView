@@ -51,7 +51,7 @@ public struct RichEditorOptionItem: RichEditorOption {
 }
 
 /// RichEditorOptions is an enum of standard editor actions
-public enum RichEditorDefaultOption: RichEditorOption {
+ public enum RichEditorDefaultOption: RichEditorOption, Equatable {
 
     case clear
     case undo
@@ -144,7 +144,7 @@ public enum RichEditorDefaultOption: RichEditorOption {
     }
     
     public func action(_ toolbar: RichEditorToolbar) {
-        toolbar.updateToolbarSelectItem(option: self)
+//        toolbar.updateToolbarSelectItem(option: self)
         switch self {
         case .clear: toolbar.editor?.removeFormat()
         case .undo: toolbar.editor?.undo()

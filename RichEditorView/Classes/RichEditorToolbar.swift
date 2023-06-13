@@ -27,19 +27,26 @@ import UIKit
 /// RichBarButtonItem is a subclass of UIBarButtonItem that takes a callback as opposed to the target-action pattern
 @objcMembers open class RichBarButtonItem: UIBarButtonItem {
     open var actionHandler: (() -> Void)?
-    
-    public convenience init(image: UIImage? = nil, handler: (() -> Void)? = nil) {
-        self.init(image: image, style: .plain, target: nil, action: nil)
-        target = self
-        action = #selector(RichBarButtonItem.buttonWasTapped)
+    open var option: RichEditorDefaultOption?
+    public convenience init(image: UIImage? = nil, selectImage: UIImage? = nil, handler: (() -> Void)? = nil, option: RichEditorDefaultOption? = nil) {
+        let button = UIButton()
+        button.setImage(image, for: .normal)
+        button.setBackgroundImage(selectImage, for: .selected)
+        button.frame = CGRect(origin: .zero, size: image?.size ?? .zero)
+        button.layer.cornerRadius = 4
+        button.layer.masksToBounds = true
+        self.init(customView: button)
+        button.addTarget(self, action: #selector(RichBarButtonItem.buttonWasTapped), for: .touchUpInside)
         actionHandler = handler
+        self.option = option
     }
     
-    public convenience init(title: String = "", handler: (() -> Void)? = nil) {
+    public convenience init(title: String = "", handler: (() -> Void)? = nil, option: RichEditorDefaultOption? = nil) {
         self.init(title: title, style: .plain, target: nil, action: nil)
         target = self
         action = #selector(RichBarButtonItem.buttonWasTapped)
         actionHandler = handler
+        self.option = option
     }
     
     @objc func buttonWasTapped() {
@@ -57,7 +64,7 @@ import UIKit
     open weak var editor: RichEditorView?
 
     /// The list of options to be displayed on the toolbar
-    open var options: [RichEditorOption] = [] {
+    open var options: [RichEditorDefaultOption] = [] {
         didSet {
             updateToolbar()
         }
@@ -77,8 +84,11 @@ import UIKit
         toolbarScroll = UIScrollView()
         toolbar = UIToolbar()
         backgroundToolbar = UIToolbar()
+        // 隐藏顶部分割线
+        backgroundToolbar.clipsToBounds = true
         super.init(frame: frame)
         setup()
+
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -127,11 +137,11 @@ import UIKit
             fixedSpace.width = 8 // 设置固定空间的宽度
 
             if let image = option.image {
-                let button = RichBarButtonItem(image: image, handler: handler)
+                let button = RichBarButtonItem(image: image, handler: handler, option: option)
                 buttons.append(button)
             } else {
                 let title = option.title
-                let button = RichBarButtonItem(title: title, handler: handler)
+                let button = RichBarButtonItem(title: title, handler: handler, option: option)
                 buttons.append(button)
             }
             buttons.append(fixedSpace)
@@ -155,49 +165,23 @@ import UIKit
         }
         toolbar.frame.size.height = 44
         toolbarScroll.contentSize.width = width
+        
     }
     
     
     /// 更新选中的item样式
-    func updateToolbarSelectItem(option: RichEditorDefaultOption) {
-        
-        switch option {
-        case .orderedList:
-            toolbar.items?.forEach { item in
-                if let button = item as? RichBarButtonItem {
-                    if button.image == RichEditorDefaultOption.orderedList.image {
-                        button.isSelected = !button.isSelected
-                    }
-                    
-                    if button.image == RichEditorDefaultOption.unorderedList.image {
-                        button.isSelected = false
-                    }
+   public func updateToolbarSelectedItem(options: [RichEditorDefaultOption]) {
+        let hasOrderList = options.contains(where: {$0 == RichEditorDefaultOption.orderedList})
+        let hasUnOrderList = options.contains(where: {$0 == RichEditorDefaultOption.unorderedList})
+        toolbar.items?.forEach { item in
+            if let button = item as? RichBarButtonItem {
+                guard let customView = button.customView as? UIButton else {
+                    return
                 }
+                customView.isSelected = options.contains(where: {$0 == button.option})
+                customView.backgroundColor = customView.isSelected ? UIColor.init(red: 0.8, green: 0.89, blue: 1, alpha: 1) : .white
             }
-
-            break
-        case .unorderedList:
-            toolbar.items?.forEach { item in
-                if let button = item as? RichBarButtonItem {
-                    if button.image == RichEditorDefaultOption.unorderedList.image {
-                        button.isSelected = !button.isSelected
-                    }
-                    
-                    if button.image == RichEditorDefaultOption.orderedList.image {
-                        button.isSelected = false
-                    }
-                }
-            }
-
-            break
-        default:
-            toolbar.items?.forEach { item in
-                if let button = item as? RichBarButtonItem, button.image == option.image {
-                        button.isSelected = !button.isSelected
-                }
-            }
-
-            break
+            
         }
 
     }
