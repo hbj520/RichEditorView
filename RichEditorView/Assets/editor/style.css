@@ -59,7 +59,7 @@ div {
     content: attr(placeholder);
     position: absolute;
     top: 0px;
-    color: #cccccc;
+    color: #999999;
 }
 
 #editor {
@@ -67,8 +67,12 @@ div {
     height: 100%;
     overflow: auto;
     display: block;
-    font-size: 12pt;
+    font-size: 17px;
+    color: #333333;
+    font-style: normal;
+    font-weight: 400;
 }
+
 
 input[type=checkbox] {
     transform: scale(1.4);
