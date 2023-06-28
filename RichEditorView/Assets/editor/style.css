@@ -27,7 +27,7 @@ html {
 body {
     min-height: 100%;
     overflow: auto;
-    font: -apple-system-body;
+/*    font: -apple-system-body;*/
     padding-left: 16px;
     padding-right: 16px;
 }
